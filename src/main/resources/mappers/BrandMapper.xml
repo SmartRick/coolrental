@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kgc.coolrental.mapper.BrandMapper">
+    <resultMap id="brandMap" type="brand">
+        <id column="bid" property="id"/>
+        <result column="bname" property="name"/>
+        <result column="status" property="status"/>
+        <collection property="modelList" javaType="list" ofType="brandModel">
+            <id property="id" column="bmid"/>
+            <result property="name" column="bmname"/>
+        </collection>
+    </resultMap>
+
+    <select id="queryAll" resultMap="brandMap">
+        <include refid="selectBrand"/>
+    </select>
+
+    <select id="queryAllPage" resultMap="brandMap">
+        <include refid="selectBrand"/> LIMIT #{index},#{size}
+    </select>
+
+    <select id="queryById" resultMap="brandMap">
+        <include refid="selectBrand"/> AND b.id=#{id}
+    </select>
+
+    <insert id="addModelList">
+        INSERT INTO t_brand_model_and (brand_id,model_id) VALUES
+        <foreach collection="list" item="model" separator=",">
+            (#{brandId},#{model.id})
+        </foreach>
+    </insert>
+
+    <select id="queryWord" resultMap="brandMap">
+        <include refid="selectBrand"/> AND b.name LIKE CONCAT('%',#{word},'%') LIMIT #{index},#{size}
+    </select>
+
+<!--    <delete id="deleteModelsById">-->
+<!--        DELETE FROM t_brand_model_and WHERE brand_id=#{id}-->
+<!--    </delete>-->
+
+    <sql id="selectBrand">
+        SELECT b.id bid,b.`name` bname,b.`status`,bm.id bmid,bm.`name` bmname FROM t_brand b,t_brand_model_and bma,t_brand_model bm WHERE bma.brand_id=b.id AND bma.model_id=bm.id
+    </sql>
+</mapper>

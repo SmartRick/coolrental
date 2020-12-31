@@ -1,0 +1,143 @@
+# mybatis mapper路劲和实体类别名配置
+#mybatis:
+#  mapper-locations: classpath:mappers/*Mapper.xml
+#  config-location: classpath:config/mybatis.cfg.xml
+#  type-aliases-package: cn.kgc.coolrental.entity
+# mybatis-plus框架配置
+mybatis-plus:
+#  config-location: classpath:config/mybatis.cfg.xml
+  type-aliases-package: cn.kgc.coolrental.entity
+  mapper-locations: classpath:mappers/*Mapper.xml
+  configuration:
+    # 下划线驼峰方案
+    map-underscore-to-camel-case: true
+#    auto-mapping-behavior: full
+    # 这个配置会将执行的sql打印出来，在开发或测试的时候可以用
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      field-strategy: not_empty
+      #驼峰下划线转换
+      column-underline: true
+      table-prefix: t_
+      #逻辑删除配置
+#      logic-delete-value: 0
+#      logic-not-delete-value: 1
+      db-type: mysql
+    refresh: false
+
+server:
+  port: 8484
+  servlet:
+    context-path: /coolrental
+spring:
+  profiles: dev
+  # 上传文件大小设置
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 30MB
+      max-request-size: 100MB
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: a123
+    url: jdbc:mysql://localhost:3306/coolrental?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+
+    ################### 以下为druid增加的配置 ###########################
+    type: com.alibaba.druid.pool.DruidDataSource
+    # 初始化连接池个数
+    initialSize: 5
+    # 最小连接池个数——》已经不再使用，配置了也没效果
+    minIdle: 2
+    # 最大连接池个数
+    maxActive: 20
+    # 配置获取连接等待超时的时间，单位毫秒，缺省启用公平锁，并发效率会有所下降
+    maxWait: 60000
+    # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+    timeBetweenEvictionRunsMillis: 60000
+    # 配置一个连接在池中最小生存的时间，单位是毫秒
+    minEvictableIdleTimeMillis: 300000
+    # 用来检测连接是否有效的sql，要求是一个查询语句。
+    # 如果validationQuery为null，testOnBorrow、testOnReturn、testWhileIdle都不会起作用
+    validationQuery: SELECT 1 FROM DUAL
+    # 建议配置为true，不影响性能，并且保证安全性。
+    # 申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。
+    testWhileIdle: true
+    # 申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能
+    testOnBorrow: false
+    # 归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能
+    testOnReturn: false
+    # 打开PSCache，并且指定每个连接上PSCache的大小
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    # 通过别名的方式配置扩展插件，多个英文逗号分隔，常用的插件有：
+    # 监控统计用的filter:stat
+    # 日志用的filter:log4j
+    # 防御sql注入的filter:wall
+    filters: stat,wall
+    # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+    # 合并多个DruidDataSource的监控数据
+    useGlobalDataSourceStat: true
+    # Druid数据源监控配置
+    druid:
+      stat-view-servlet:
+        url-pattern: /druid/*
+        reset-enable: true
+        login-username:
+        login-password:
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+
+
+  # 开启MVC隐藏域提交方式
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+  # redis缓存配置
+  redis:
+    # jedis 连接池配置
+    jedis:
+      pool:
+        #最大连接数
+        max-active: 1024
+        #最大阻塞等待时间(负数表示没限制)
+        max-wait: 20000
+        #最大空闲
+        max-idle: 200
+        #最小空闲
+        min-idle: 10
+    timeout: 5000
+    # 非哨兵集群模式
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+#    password: a123
+    # 哨兵集群模式
+#    sentinel:
+#      # 指定哨兵监控的集群主节点名称
+#      master: mymaster
+#      # 哨兵节点
+#      nodes: 192.168.10.71:5000,192.168.10.71:5001,192.168.10.71:5002
+
+  # spring cache缓存配置
+  cache:
+    cache-names: redis
+    type: redis
+#    redis:
+#      key-prefix: #
+
+
+# 七牛云上传文件配置
+upload:
+  qiniu:
+    domain: http://ql2umegvt.hn-bkt.clouddn.com
+    access-key: zleLSPC4eUhRu08F0vL7073UsX2kh8bGfSPbELFx
+    secret-key: 5T2Gg_enE5Ie2skfe8J4BQTLKLcEoyLn6WvPUc_l
+    bucket: coolrental
