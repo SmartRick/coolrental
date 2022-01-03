@@ -4,6 +4,8 @@ import cn.kgc.coolrental.entity.Post;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.context.annotation.Scope;
 
+import java.math.BigDecimal;
+
 public interface PostService {
 
     Page<Post> queryAllPage(Page<Post> postTypePage);
@@ -17,5 +19,4 @@ public interface PostService {
     boolean remove(Integer integer);
 
     boolean modify(Post post);
-
 }

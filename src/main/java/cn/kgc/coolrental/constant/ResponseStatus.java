@@ -8,7 +8,8 @@ public enum ResponseStatus {
     AUTHORITY_TIME_OUT(435, "Token认证信息过期"),
     NO_PERM(436, "没有权限进行当前操作"),
     NO_ROLE(437, "不具备指定角色信息"),
-    TOKEN_VERIFY_FAIL(438, "Token信息解析失败");
+    TOKEN_VERIFY_FAIL(438, "Token信息解析失败"),
+    ARGUMENT_EXCEPT(700,"提交参数异常");
 
     private Integer code;
     private String msg;

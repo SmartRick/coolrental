@@ -8,6 +8,7 @@ import cn.kgc.coolrental.entity.Post;
 import cn.kgc.coolrental.service.BrandService;
 import cn.kgc.coolrental.service.PostService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import io.jsonwebtoken.lang.Assert;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -83,29 +84,21 @@ public class BrandController {
         return msg;
     }
 
-    @ApiOperation("修改品牌型号信息")
+    @ApiOperation("修改"+type+"信息")
     @PutMapping("/modify")
     public ResponseMsg modify(
             @ApiParam(name = "brand", value = "品牌对象", required = true)
             @RequestBody Brand brand) {
+        System.out.println("brand = " + brand);
         ResponseMsg msg = new ResponseMsg();
-        if (brand != null) {
-                if (brand.getId() != null) {
-                    if (service.modify(brand)) {
-                        msg.setCode(cn.kgc.coolrental.constant.ResponseStatus.SUCCESS.getCode());
-                        msg.setMsg("修改品牌成功");
-                        msg.setData(brand);
-                    } else {
-                        msg.setCode(ResponseStatus.FAIL.getCode());
-                        msg.setMsg("修改品牌失败");
-                    }
-                } else {
-                    msg.setCode(ResponseStatus.FAIL.getCode());
-                    msg.setMsg("提交数据异常");
-                }
-        }else{
+        Assert.notNull(brand.getId(),"产品id不能为空");
+        if (service.modify(brand)) {
+            msg.setCode(cn.kgc.coolrental.constant.ResponseStatus.SUCCESS.getCode());
+            msg.setMsg("修改品牌成功");
+            msg.setData(brand);
+        } else {
             msg.setCode(ResponseStatus.FAIL.getCode());
-            msg.setMsg("提交数据异常");
+            msg.setMsg("修改品牌失败");
         }
 
         return msg;

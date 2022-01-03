@@ -14,49 +14,51 @@ import com.qiniu.util.StringMap;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.UUID;
 
 /**
- * @author Johnson
- * @date 2019/12/14/ 17:20:16
- * 上传文件到七牛云
+ * @author SmartRick
+ * @date 2022年1月3日18:54:34
+ * 七牛云OSS SDK封装，上传文件工具类
  */
+@Component
 public class UploadFileQiniu {
 
-    private UploadProperties.Qiniu properties;
+    @Resource
+    private UploadProperties uploadProperties;
 
     //构造一个带指定Region对象的配置类
     private Configuration cfg = new Configuration(Region.region2());
 
     private UploadManager uploadManager = new UploadManager(cfg);
 
-    public UploadFileQiniu(UploadProperties.Qiniu properties) {
-        this.properties = properties;
-    }
+    /**
+     * 上传文件
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    public String uploadFile(MultipartFile file) throws IOException {
+        String uploadToken = getAuth().uploadToken(uploadProperties.getBucket());
+        String originalFilename = file.getOriginalFilename();
+        if (StringUtil.isEmpty(originalFilename)) return null;
+        // 文件后缀
+        String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String fileKey = UUID.randomUUID().toString() + suffix;
+        Response response = uploadManager.put(file.getInputStream(), fileKey, uploadToken,
+                getPutPolicy(), null);
+        System.out.println(response.bodyString());
+        DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
 
-    public String uploadFile(MultipartFile file) {
-        String uploadToken = getAuth().uploadToken(properties.getBucket());
-        try {
-            String originalFilename = file.getOriginalFilename();
-            // 文件后缀
-            String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
-            String fileKey = UUID.randomUUID().toString() + suffix;
-            Response response = uploadManager.put(file.getInputStream(), fileKey, uploadToken,
-                    getPutPolicy(), null);
-            System.out.println(response.bodyString());
-            DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
-
-            System.out.println(putRet.key);
-            System.out.println(putRet.hash);
-            return fileKey;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "error";
+        System.out.println(putRet.key);
+        System.out.println(putRet.hash);
+        return fileKey;
     }
 
     public String getDownloadPrivatePath(String fileName) {
@@ -88,12 +90,12 @@ public class UploadFileQiniu {
      */
     public String delete(String key) throws QiniuException {
         BucketManager bucketManager = new BucketManager(getAuth(), cfg);
-        Response response = bucketManager.delete(properties.getBucket(), key);
+        Response response = bucketManager.delete(uploadProperties.getBucket(), key);
         int retry = 0;
         //判断是否需要 重试 删除 且重试次数为3
         while (response.needRetry() && retry++ < 3) {
             System.out.println("正在尝试删除");
-            response = bucketManager.delete(properties.getBucket(), key);
+            response = bucketManager.delete(uploadProperties.getBucket(), key);
         }
         return response.statusCode == 200 ? "删除成功!" : "删除失败!";
     }
@@ -106,7 +108,7 @@ public class UploadFileQiniu {
      */
     public String getPrivateFile(String fileKey) throws Exception {
         String encodedFileName = URLEncoder.encode(fileKey, "utf-8").replace("+", "%20");
-        String publicUrl = String.format("%s/%s", properties.getDomain(), encodedFileName);
+        String publicUrl = String.format("%s/%s", uploadProperties.getDomain(), encodedFileName);
 //        //1小时，可以自定义链接过期时间
 //        long expireInSeconds = 3600;
         String privateUrl = getAuth().privateDownloadUrl(publicUrl);
@@ -169,8 +171,7 @@ public class UploadFileQiniu {
 
 
     private Auth getAuth() {
-        return Auth.create(properties.getAccessKey(), properties.getSecretKey());
+        return Auth.create(uploadProperties.getAccessKey(), uploadProperties.getSecretKey());
     }
 
-    ;
 }

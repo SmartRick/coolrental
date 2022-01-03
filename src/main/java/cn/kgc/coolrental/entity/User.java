@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
@@ -23,12 +24,14 @@ public class User implements Serializable {
     @ApiModelProperty("用户Id")
     private Integer id;
     @ApiModelProperty("用户姓名")
+    @NotBlank
     private String name;
     @ApiModelProperty("用户昵称")
     private String nick;
     @ApiModelProperty("用户头像")
     private String headUrl;
     @ApiModelProperty("用户电话号码")
+
     private String phone;
     @ApiModelProperty("用户密码")
     private String password;

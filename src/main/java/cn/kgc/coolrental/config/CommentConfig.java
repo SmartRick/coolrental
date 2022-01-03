@@ -46,6 +46,11 @@ import java.util.Properties;
 @EnableCaching
 public class CommentConfig {
 
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
     @Bean
     @ConfigurationProperties("spring.datasource")
     public DruidDataSource druidDataSource() {
@@ -125,6 +130,7 @@ public class CommentConfig {
     }
 
     private ApiInfo apiInfo() {
+
         return new ApiInfoBuilder()
                 .title("酷租租管理系统API文档")
                 .description("这是Restful风格的接口文档")

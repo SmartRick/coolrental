@@ -59,6 +59,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             //开始进行认证校验
             if (token == null || "".equals(token) || "null".equals(token)) {
                 System.out.println("请求未携带Token");
+
                 request.setAttribute("err", ResponseStatus.NOT_AUTHORITY);
                 flag = false;
             } else {
